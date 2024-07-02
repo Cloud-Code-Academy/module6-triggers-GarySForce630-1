@@ -1,14 +1,18 @@
 public class AccountTriggerHandler {
-    public static void beforeInsert(List<Account> newAccounts) {
-        for (Account acc : newAccounts) {
-            if (acc.Type == null) {
-                acc.Type = 'Prospect';
-         }
-      }
-    }
-    public static void beforeUpdate(List<Account> newAccounts) {
-        for (Account acc : newAccounts) {
-            if (acc.ShippingStreet != null || acc.ShippingCity != null || acc.ShippingState != null || acc.ShippingPostalCode != null || acc.ShippingCountry != null) {
+    public static void beforeInsert(List<Account> accList) {
+        for (Account acc : accList) {
+            if (acc.Phone != null && acc.Website != null && acc.Fax != null) {
+                acc.Rating = 'Hot';
+            }
+        }
+        for (Account acc : accList) {
+            // Check if the shipping fields are not empty before copying
+            if (String.isNotBlank(acc.ShippingStreet) || 
+                String.isNotBlank(acc.ShippingCity) || 
+                String.isNotBlank(acc.ShippingState) || 
+                String.isNotBlank(acc.ShippingPostalCode) || 
+                String.isNotBlank(acc.ShippingCountry)) {
+                
                 acc.BillingStreet = acc.ShippingStreet;
                 acc.BillingCity = acc.ShippingCity;
                 acc.BillingState = acc.ShippingState;
@@ -16,7 +20,14 @@ public class AccountTriggerHandler {
                 acc.BillingCountry = acc.ShippingCountry;
             }
         }
-    } 
+        for (Account acc : accList) {
+            if (acc.Type == null || acc.Type.trim() == '') {
+                acc.Type = 'Prospect';
+            }
+        }
+    }
+    
+   
     public static void afterInsert(List<Account> newAccounts) {
         List<Contact> contactsToInsert = new List<Contact>();
         
